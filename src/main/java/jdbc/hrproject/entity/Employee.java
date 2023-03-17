@@ -10,16 +10,14 @@ public class Employee {
 
     @Id
     @Column("id")
-    private String id;
+    private int id;
     private String name;
     private String major;
     private String title;
-
     private double salary;
-
     private String gender;
 
-    public Employee(String id, String name, String major, String title, double salary, String gender) {
+    public Employee(int id,String name, String major, String title, double salary, String gender) {
         this.id = id;
         this.name = name;
         this.major = major;
@@ -28,7 +26,9 @@ public class Employee {
         this.gender = gender;
     }
 
-    public void setId(String id) {
+
+
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -52,7 +52,7 @@ public class Employee {
         this.gender = gender;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
