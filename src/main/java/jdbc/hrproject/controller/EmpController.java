@@ -1,8 +1,13 @@
 package jdbc.hrproject.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jdbc.hrproject.entity.Employee;
 import jdbc.hrproject.repository.EmpReps;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +25,14 @@ public class EmpController {
         return (int) empReps.count();
     }
 
-    @GetMapping("")
+    @GetMapping("/findall")
     public List<Employee> findAll(){
         return (List<Employee>) empReps.findAll();
     }
 
     @GetMapping("/findbyid/{id}")
-    public Optional<Employee> findById(@PathVariable int id){
-        return empReps.findById(String.valueOf(id));
+    public ResponseEntity<?> findById(@PathVariable int id){
+        return ResponseEntity.accepted().body(empReps.findById(String.valueOf(id)));
     }
 
     @GetMapping("/delete/{id}")
@@ -49,18 +54,40 @@ public class EmpController {
         return empReps.findByName(name);
     }
 
-    @GetMapping("/nameorsalary/{name}/{salary}")
+    @GetMapping("/filter1/{name}/{salary}")
     public List<Employee> findByNameAndSalary(@PathVariable String name, @PathVariable double salary){
         return empReps.findByNameOrSalary(name,salary);
     }
-    @GetMapping("/namestartwith/{name}/{salary}")
-    public List<Employee> findByNameStartingWithOrSalary(@PathVariable String name, @PathVariable double salary){
+    @GetMapping("/filter")
+    public List<Employee> findByNameStartingWithOrSalary(@RequestParam String name, @RequestParam double salary){
         return empReps.findByNameStartingWithOrSalary(name,salary);
     }
 
-    @GetMapping("/findbynameandsalary/{name}/{id}")
-    public Employee findByNameAndSalary(@PathVariable int id,@PathVariable String name){
-        return empReps.findByNameAndSalary(name,id);
+    @PostMapping("")
+    public Employee addEmp(@RequestBody Employee employee){
+            return empReps.save(employee);
+    }
+    @PutMapping("")
+    public Employee updateEmp(@RequestBody Employee employee){
+        return empReps.save(employee);
     }
 
+    @DeleteMapping("{empid}")
+    public void deleteEmp(@PathVariable("empid") String id){
+        empReps.deleteById(id);
+    }
+
+    public void testJackson() throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        String json = "{\n" +
+                "    \"id\": 150,\n" +
+                "    \"name\": \"waeel\",\n" +
+                "    \"major\": null,\n" +
+                "    \"title\": null,\n" +
+                "    \"salary\": 0.0,\n" +
+                "    \"gender\": null\n" +
+                "}";
+        Employee empObject = mapper.readValue(json,Employee.class);
+        json = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(empObject);
+    }
 }

@@ -15,6 +15,5 @@ public interface EmpReps extends CrudRepository<Employee, String> {
 
     public List<Employee> findByNameStartingWithOrSalary(String name, double salary);
 
-    @Query(value = "SELECT * FROM employee WHERE name like ':name%' and id > :id")
     public Employee findByNameAndSalary(@Param("name") String name, @Param("id") int id);
 }
