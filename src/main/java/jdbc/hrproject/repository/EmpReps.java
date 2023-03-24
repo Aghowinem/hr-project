@@ -1,6 +1,7 @@
 package jdbc.hrproject.repository;
 
 import jdbc.hrproject.entity.Employee;
+import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -15,5 +16,9 @@ public interface EmpReps extends CrudRepository<Employee, String> {
 
     public List<Employee> findByNameStartingWithOrSalary(String name, double salary);
 
-    public Employee findByNameAndSalary(@Param("name") String name, @Param("id") int id);
+    public Employee findByNameAndId(@Param("name") String name, @Param("id") int id);
+
+    @Modifying
+    @Query(value = "UPDATE employee SET salary = :salary WHERE id = :id")
+    public int updateSalary(double salary, int id);
 }

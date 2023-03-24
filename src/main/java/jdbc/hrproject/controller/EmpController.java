@@ -4,7 +4,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jdbc.hrproject.entity.Employee;
 import jdbc.hrproject.repository.EmpReps;
+import jdbc.hrproject.service.EmployeeService;
 import org.apache.coyote.Response;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
@@ -17,27 +21,30 @@ import java.util.Optional;
 @RequestMapping("/employee")
 public class EmpController {
 
+    Logger log = LoggerFactory.getLogger(EmpController.class);
+
     @Autowired
-    private EmpReps empReps;
+    private EmployeeService employeeService;
 
     @GetMapping("/count")
     public int countEmp(){
-        return (int) empReps.count();
+        return (int) employeeService.count();
     }
 
     @GetMapping("/findall")
     public List<Employee> findAll(){
-        return (List<Employee>) empReps.findAll();
+        return (List<Employee>) employeeService.findAll();
     }
 
     @GetMapping("/findbyid/{id}")
-    public ResponseEntity<?> findById(@PathVariable int id){
-        return ResponseEntity.accepted().body(empReps.findById(String.valueOf(id)));
+    public Optional<Employee> findById(@PathVariable int id, @RequestHeader("acceptLanguage") String acceptLanguage){
+        log.info("Accept Language is" + acceptLanguage);
+        return employeeService.findById(id,acceptLanguage);
     }
 
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable int id){
-        empReps.deleteById(String.valueOf(id));
+        employeeService.delete(id);
         System.out.println(id+"has been deleted");
     }
 //    @GetMapping("/insert")
@@ -46,35 +53,39 @@ public class EmpController {
 //    }
     @GetMapping("/update/{id}")
     public Employee update(@PathVariable int id){
-        return empReps.save(new Employee(id,"Waeel","CS","SWE",13200.0,"M"));
+        return employeeService.update(new Employee(id,"Waeel","CS","SWE",13200.0,"M"));
     }
 
     @GetMapping("/findbyname/{name}")
         public List<Employee> FindByName(@PathVariable String name){
-        return empReps.findByName(name);
+        return employeeService.findByName(name);
     }
 
     @GetMapping("/filter1/{name}/{salary}")
     public List<Employee> findByNameAndSalary(@PathVariable String name, @PathVariable double salary){
-        return empReps.findByNameOrSalary(name,salary);
+        return employeeService.findByNameOrSalary(name,salary);
     }
     @GetMapping("/filter")
     public List<Employee> findByNameStartingWithOrSalary(@RequestParam String name, @RequestParam double salary){
-        return empReps.findByNameStartingWithOrSalary(name,salary);
+        return employeeService.findByNameStartingWithOrSalary(name,salary);
     }
 
     @PostMapping("")
     public Employee addEmp(@RequestBody Employee employee){
-            return empReps.save(employee);
+            return employeeService.insert(employee);
     }
     @PutMapping("")
     public Employee updateEmp(@RequestBody Employee employee){
-        return empReps.save(employee);
+        return employeeService.update(employee);
+    }
+    @PutMapping("/salary")
+    public int updateSalary(@RequestParam double salary, @RequestParam int id){
+        return employeeService.updateSalary(salary,id);
     }
 
     @DeleteMapping("{empid}")
-    public void deleteEmp(@PathVariable("empid") String id){
-        empReps.deleteById(id);
+    public void deleteEmp(@PathVariable("empid") int id){
+        employeeService.delete(id);
     }
 
     public void testJackson() throws JsonProcessingException {
